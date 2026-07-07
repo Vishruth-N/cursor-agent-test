@@ -45,13 +45,16 @@ frame.addEventListener("error", showFallback);
 
 reload.addEventListener("click", () => {
   frame.src = source;
+  reload.blur();
 });
 
 fullscreen.addEventListener("click", async () => {
   if (document.fullscreenElement) {
     await document.exitFullscreen();
+    fullscreen.blur();
     return;
   }
 
   await document.documentElement.requestFullscreen();
+  fullscreen.blur();
 });
