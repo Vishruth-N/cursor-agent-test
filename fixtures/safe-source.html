@@ -18,7 +18,7 @@
       body {
         align-items: center;
         background:
-          radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.2), transparent 8rem),
+          radial-gradient(circle at 50% 46%, rgba(82, 210, 255, 0.18), transparent 8rem),
           linear-gradient(135deg, #020202, #121212 48%, #030303);
         display: flex;
         justify-content: center;
@@ -28,13 +28,24 @@
       .panel {
         aspect-ratio: 16 / 9;
         background:
-          radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.22), transparent 18%),
-          linear-gradient(145deg, #1a1a1a, #050505);
+          linear-gradient(90deg, rgba(82, 210, 255, 0.55) 0 0.65rem, transparent 0.65rem),
+          radial-gradient(circle at 50% 50%, rgba(82, 210, 255, 0.2), transparent 18%),
+          linear-gradient(145deg, #10202a, #050709);
         border-radius: 1.5rem;
-        outline: 1px solid rgba(255, 255, 255, 0.12);
+        display: grid;
+        outline: 1px solid rgba(82, 210, 255, 0.24);
         outline-offset: -1px;
-        box-shadow: 0 2rem 6rem rgba(255, 255, 255, 0.08);
+        place-items: center;
+        box-shadow: 0 2rem 6rem rgba(82, 210, 255, 0.12);
         width: min(80vw, 68rem);
+      }
+
+      .panel::after {
+        color: rgba(255, 255, 255, 0.72);
+        content: "safe source";
+        font: 600 0.78rem/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
       }
     </style>
   </head>
