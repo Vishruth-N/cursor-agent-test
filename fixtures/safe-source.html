@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Safe Source</title>
+    <style>
+      :root {
+        background: #000;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        align-items: center;
+        background:
+          radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.2), transparent 8rem),
+          linear-gradient(135deg, #020202, #121212 48%, #030303);
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .pulse {
+        animation: breathe 3.2s ease-in-out infinite;
+        aspect-ratio: 16 / 9;
+        background:
+          radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.2), transparent 16%),
+          linear-gradient(145deg, #202020, #070707);
+        border-radius: 1.5rem;
+        box-shadow: 0 2rem 6rem rgba(255, 255, 255, 0.08);
+        width: min(80vw, 68rem);
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: scale(0.985);
+        }
+
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pulse" aria-label="Safe animated test source"></div>
+  </body>
+</html>

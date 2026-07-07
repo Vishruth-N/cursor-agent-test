@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A minimal, distraction-free video playlist viewer."
+    />
+    <title>Focus Viewer</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <main class="shell" aria-label="Minimal video viewer">
+      <iframe
+        id="viewer-frame"
+        title="Video playlist"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+        allowfullscreen
+        loading="eager"
+        referrerpolicy="no-referrer"
+        sandbox="allow-forms allow-presentation allow-same-origin allow-scripts"
+      ></iframe>
+
+      <div id="source-fallback" class="fallback" hidden>
+        <a id="fallback-open" class="fallback-link" target="_blank" rel="noreferrer">
+          open
+        </a>
+      </div>
+
+      <nav class="controls" aria-label="Viewer controls">
+        <button id="reload" type="button" aria-label="Reload source">
+          reload
+        </button>
+        <a id="open-source" target="_blank" rel="noreferrer" aria-label="Open source">
+          open
+        </a>
+        <button id="fullscreen" type="button" aria-label="Enter fullscreen">
+          full
+        </button>
+      </nav>
+    </main>
+  </body>
+</html>
