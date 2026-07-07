@@ -35,6 +35,8 @@ test("keeps visible app chrome intentionally minimal", () => {
   const visibleControlLabels = html.match(/>\s*(reload|open|full)\s*</g) ?? [];
 
   assert.equal(visibleControlLabels.length, 4);
-  assert.match(css, /\.shell:hover \.controls/);
+  assert.match(css, /\.shell\.controls-visible \.controls/);
+  assert.match(js, /CONTROL_REVEAL_EDGE = 96/);
+  assert.match(js, /window\.innerHeight - clientY <= CONTROL_REVEAL_EDGE/);
   assert.match(css, /opacity: 0;/);
 });
