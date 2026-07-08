@@ -37,6 +37,17 @@ test("keeps visible app chrome intentionally minimal", () => {
   assert.equal(visibleControlLabels.length, 4);
   assert.match(html, /<div class="control-zone" aria-hidden="true"><\/div>/);
   assert.match(css, /\.control-zone:hover \+ \.controls/);
-  assert.doesNotMatch(js, /pointermove/);
+  assert.match(css, /\.shell\.controls-visible \.controls/);
+  assert.match(js, /controlZone\.addEventListener\("pointerdown", showControls\)/);
+  assert.match(js, /controlZone\.addEventListener\("pointermove", showControls\)/);
+  assert.doesNotMatch(js, /window\.addEventListener\(\s*"pointermove"/);
   assert.match(css, /opacity: 0;/);
+});
+
+test("shows a black official-source fallback for blocked remote embeds", () => {
+  assert.match(js, /EMBED_FALLBACK_DELAY = 2500/);
+  assert.match(js, /new URL\(source\)\.origin !== window\.location\.origin/);
+  assert.match(js, /setTimeout\(showFallback, EMBED_FALLBACK_DELAY\)/);
+  assert.match(css, /body\.fallback-visible #viewer-frame/);
+  assert.match(css, /\.fallback \{\n  background: #000;/);
 });
