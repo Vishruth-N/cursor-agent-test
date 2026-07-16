@@ -47,6 +47,7 @@ test("keeps explicit iframe source mode restrained", () => {
 
 test("limits source overrides to http and https URLs", () => {
   assert.match(js, /const toHttpUrl = \(value, base = window\.location\.href\)/);
+  assert.match(js, /if \(!value\) \{\n    return "";\n  \}/);
   assert.match(js, /const parsed = new URL\(value, base\)/);
   assert.match(js, /parsed\.protocol === "http:" \|\| parsed\.protocol === "https:"/);
   assert.match(js, /return DEFAULT_PLAYLIST;/);

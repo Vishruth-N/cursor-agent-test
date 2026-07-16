@@ -20,6 +20,10 @@ let activeIndex = 0;
 let activeItems = [];
 
 const toHttpUrl = (value, base = window.location.href) => {
+  if (!value) {
+    return "";
+  }
+
   try {
     const parsed = new URL(value, base);
 
