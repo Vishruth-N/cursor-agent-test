@@ -67,6 +67,7 @@ test("keeps visible app chrome intentionally minimal", () => {
   assert.match(html, /<div class="control-zone" aria-hidden="true"><\/div>/);
   assert.match(css, /\.control-zone:hover \+ \.controls/);
   assert.match(css, /\.shell\.controls-visible \.controls/);
+  assert.match(css, /body\.native-mode \.controls/);
   assert.match(js, /controlZone\.addEventListener\("pointerdown", showControls\)/);
   assert.match(js, /controlZone\.addEventListener\("pointermove", showControls\)/);
   assert.doesNotMatch(js, /window\.addEventListener\(\s*"pointermove"/);

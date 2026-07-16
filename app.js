@@ -170,6 +170,8 @@ const renderPlaylist = () => {
 };
 
 const loadNativePlaylist = async () => {
+  document.body.classList.add("native-mode");
+  document.body.classList.remove("embed-mode");
   const playlistUrl = getPlaylistUrl();
   const response = await fetch(playlistUrl, { cache: "no-store" });
   const manifest = response.ok ? await response.json() : { items: [] };
@@ -191,6 +193,8 @@ const loadNativePlaylist = async () => {
 };
 
 const loadEmbedSource = (source) => {
+  document.body.classList.add("embed-mode");
+  document.body.classList.remove("native-mode");
   activeSource = source;
   nativeView.hidden = true;
   frame.hidden = false;

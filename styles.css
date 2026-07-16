@@ -118,6 +118,10 @@ body.fallback-visible .embed-frame {
   z-index: 2;
 }
 
+body.native-mode .controls {
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 3.5rem);
+}
+
 .control-zone {
   bottom: 0;
   height: 7rem;
