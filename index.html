@@ -22,7 +22,22 @@
           preload="metadata"
         ></video>
         <div id="empty-state" class="empty-state" hidden>
-          <span>add sources</span>
+          <form id="source-import" class="source-import">
+            <label for="source-input">add sources</label>
+            <textarea
+              id="source-input"
+              rows="5"
+              spellcheck="false"
+              placeholder="https://example.com/video.mp4"
+            ></textarea>
+            <div class="source-import-actions">
+              <button type="submit">save</button>
+              <button id="clear-sources" type="button" hidden>clear</button>
+            </div>
+            <p id="source-import-status" class="source-import-status" role="status">
+              Paste direct MP4/WebM/HLS URLs you have the right to play.
+            </p>
+          </form>
         </div>
         <div id="playlist" class="playlist" aria-label="Playlist"></div>
       </section>

@@ -4,6 +4,10 @@ const frame = document.querySelector("#viewer-frame");
 const nativeView = document.querySelector("#native-view");
 const nativePlayer = document.querySelector("#native-player");
 const emptyState = document.querySelector("#empty-state");
+const sourceImport = document.querySelector("#source-import");
+const sourceInput = document.querySelector("#source-input");
+const sourceImportStatus = document.querySelector("#source-import-status");
+const clearSources = document.querySelector("#clear-sources");
 const playlist = document.querySelector("#playlist");
 const reload = document.querySelector("#reload");
 const fullscreen = document.querySelector("#fullscreen");
@@ -13,6 +17,14 @@ const fallbackOpen = document.querySelector("#fallback-open");
 const shell = document.querySelector(".shell");
 const controlZone = document.querySelector(".control-zone");
 const EMBED_FALLBACK_DELAY = 2500;
+const LOCAL_PLAYLIST_KEY = "focus-video-viewer:playlist";
+const MEDIA_TYPES = new Map([
+  ["m3u8", "application/vnd.apple.mpegurl"],
+  ["mp4", "video/mp4"],
+  ["ogv", "video/ogg"],
+  ["ogg", "video/ogg"],
+  ["webm", "video/webm"],
+]);
 
 const params = new URLSearchParams(window.location.search);
 let activeSource = "";
@@ -62,6 +74,84 @@ const setLinks = () => {
 
   openSource.href = activeSource;
   fallbackOpen.href = activeSource;
+};
+
+const inferMediaType = (src) => {
+  const extension = new URL(src).pathname.split(".").pop()?.toLowerCase() || "";
+  return MEDIA_TYPES.get(extension) || "";
+};
+
+const titleFromSource = (src) => {
+  const parsed = new URL(src);
+  const filename = parsed.pathname.split("/").filter(Boolean).at(-1);
+
+  if (!filename) {
+    return parsed.hostname;
+  }
+
+  try {
+    return decodeURIComponent(filename);
+  } catch {
+    return filename;
+  }
+};
+
+const readLocalPlaylistItems = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LOCAL_PLAYLIST_KEY) || "{}");
+    return Array.isArray(stored.items) ? stored.items : [];
+  } catch {
+    return [];
+  }
+};
+
+const setImportStatus = (message) => {
+  sourceImportStatus.textContent = message;
+};
+
+const getLocalSourceLines = () =>
+  readLocalPlaylistItems()
+    .flatMap((item) => item.sources || [])
+    .map((source) => source.src)
+    .filter(Boolean);
+
+const syncImportForm = () => {
+  const localSources = getLocalSourceLines();
+
+  if (localSources.length && !sourceInput.value.trim()) {
+    sourceInput.value = localSources.join("\n");
+  }
+
+  clearSources.hidden = !localSources.length;
+  setImportStatus("Paste direct MP4/WebM/HLS URLs you have the right to play.");
+};
+
+const parseImportedItems = (value) => {
+  const seen = new Set();
+
+  return value
+    .split(/\r?\n/)
+    .map((line) => toHttpUrl(line.trim()))
+    .filter((src) => {
+      if (!src || seen.has(src)) {
+        return false;
+      }
+
+      seen.add(src);
+      return true;
+    })
+    .map((src) => ({
+      title: titleFromSource(src),
+      sources: [{ src, type: inferMediaType(src) }],
+    }));
+};
+
+const saveLocalPlaylistItems = (items) => {
+  localStorage.setItem(LOCAL_PLAYLIST_KEY, JSON.stringify({ items }));
+};
+
+const clearLocalPlaylistItems = () => {
+  localStorage.removeItem(LOCAL_PLAYLIST_KEY);
 };
 
 const showFallback = () => {
@@ -169,17 +259,55 @@ const renderPlaylist = () => {
   );
 };
 
+sourceImport.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const items = parseImportedItems(sourceInput.value);
+
+  if (!items.length) {
+    setImportStatus("Paste at least one http(s) direct media URL.");
+    return;
+  }
+
+  try {
+    saveLocalPlaylistItems(items);
+  } catch {
+    setImportStatus("Could not save sources in this browser.");
+    return;
+  }
+
+  setImportStatus(`Saved ${items.length} source${items.length === 1 ? "" : "s"}.`);
+  await loadNativePlaylist();
+});
+
+clearSources.addEventListener("click", async () => {
+  clearLocalPlaylistItems();
+  sourceInput.value = "";
+  await loadNativePlaylist();
+  clearSources.blur();
+});
+
 const loadNativePlaylist = async () => {
   document.body.classList.add("native-mode");
   document.body.classList.remove("embed-mode");
   const playlistUrl = getPlaylistUrl();
   const response = await fetch(playlistUrl, { cache: "no-store" });
   const manifest = response.ok ? await response.json() : { items: [] };
-  activeItems = (manifest.items || [])
-    .map((item, index) => normalizeItem(item, index, playlistUrl))
+  const localItems = params.has("playlist") ? [] : readLocalPlaylistItems();
+  const manifestItems = Array.isArray(manifest.items) ? manifest.items : [];
+  const sourceItems = localItems.length ? localItems : manifestItems;
+  activeItems = sourceItems
+    .map((item, index) =>
+      normalizeItem(item, index, localItems.length ? window.location.href : playlistUrl),
+    )
     .filter((item) => item.sources.length);
 
   if (!activeItems.length) {
+    activeIndex = 0;
+    activeSource = "";
+    nativePlayer.replaceChildren();
+    nativePlayer.removeAttribute("poster");
+    renderPlaylist();
+    syncImportForm();
     emptyState.hidden = false;
     nativePlayer.hidden = true;
     setLinks();
@@ -188,6 +316,7 @@ const loadNativePlaylist = async () => {
 
   emptyState.hidden = true;
   nativePlayer.hidden = false;
+  syncImportForm();
   renderPlaylist();
   loadItem(0);
 };
@@ -213,6 +342,7 @@ if (requestedSource) {
   loadEmbedSource(requestedSource);
 } else {
   loadNativePlaylist().catch(() => {
+    syncImportForm();
     emptyState.hidden = false;
     nativePlayer.hidden = true;
   });

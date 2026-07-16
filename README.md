@@ -10,6 +10,10 @@ npm start
 
 Open `http://127.0.0.1:4173`.
 
+Paste one direct `http(s)` media URL per line into the default page and press
+`save`. Sources are stored in your browser with `localStorage` and played by the
+native video element.
+
 Add videos you have the right to play in `playlist.json`:
 
 ```json

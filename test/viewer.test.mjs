@@ -16,6 +16,16 @@ test("loads a native playlist manifest by default", () => {
   assert.deepEqual(JSON.parse(playlist), { items: [] });
 });
 
+test("offers a local import flow for direct native media URLs", () => {
+  assert.match(html, /<form id="source-import" class="source-import">/);
+  assert.match(html, /<textarea[\s\S]+id="source-input"[\s\S]+placeholder="https:\/\/example\.com\/video\.mp4"/);
+  assert.match(html, /Paste direct MP4\/WebM\/HLS URLs you have the right to play\./);
+  assert.match(js, /LOCAL_PLAYLIST_KEY = "focus-video-viewer:playlist"/);
+  assert.match(js, /parseImportedItems/);
+  assert.match(js, /localStorage\.setItem\(LOCAL_PLAYLIST_KEY/);
+  assert.match(js, /sourceImport\.addEventListener\("submit"/);
+});
+
 test("uses local fixture videos for native playback demos", () => {
   const items = JSON.parse(demoPlaylist).items;
 
@@ -56,7 +66,7 @@ test("limits source overrides to http and https URLs", () => {
 
 test("resolves native media paths relative to the playlist manifest", () => {
   assert.match(js, /const playlistUrl = getPlaylistUrl\(\)/);
-  assert.match(js, /normalizeItem\(item, index, playlistUrl\)/);
+  assert.match(js, /localItems\.length \? window\.location\.href : playlistUrl/);
   assert.match(js, /src: toHttpUrl\(source\?\.src, baseUrl\)/);
 });
 
