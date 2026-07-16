@@ -19,9 +19,9 @@ let activeSource = "";
 let activeIndex = 0;
 let activeItems = [];
 
-const toHttpUrl = (value) => {
+const toHttpUrl = (value, base = window.location.href) => {
   try {
-    const parsed = new URL(value, window.location.href);
+    const parsed = new URL(value, base);
 
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
       return parsed.toString();
@@ -104,11 +104,11 @@ fullscreen.addEventListener("click", async () => {
   fullscreen.blur();
 });
 
-const normalizeItem = (item, index) => {
+const normalizeItem = (item, index, baseUrl) => {
   const sources = Array.isArray(item?.sources)
     ? item.sources
         .map((source) => ({
-          src: toHttpUrl(source?.src),
+          src: toHttpUrl(source?.src, baseUrl),
           type: source?.type || "",
         }))
         .filter((source) => source.src)
@@ -116,7 +116,7 @@ const normalizeItem = (item, index) => {
 
   return {
     title: item?.title || String(index + 1).padStart(2, "0"),
-    poster: item?.poster ? toHttpUrl(item.poster) : "",
+    poster: item?.poster ? toHttpUrl(item.poster, baseUrl) : "",
     sources,
   };
 };
@@ -166,9 +166,12 @@ const renderPlaylist = () => {
 };
 
 const loadNativePlaylist = async () => {
-  const response = await fetch(getPlaylistUrl(), { cache: "no-store" });
+  const playlistUrl = getPlaylistUrl();
+  const response = await fetch(playlistUrl, { cache: "no-store" });
   const manifest = response.ok ? await response.json() : { items: [] };
-  activeItems = (manifest.items || []).map(normalizeItem).filter((item) => item.sources.length);
+  activeItems = (manifest.items || [])
+    .map((item, index) => normalizeItem(item, index, playlistUrl))
+    .filter((item) => item.sources.length);
 
   if (!activeItems.length) {
     emptyState.hidden = false;
@@ -201,5 +204,8 @@ const requestedSource = toHttpUrl(params.get("source") || "");
 if (requestedSource) {
   loadEmbedSource(requestedSource);
 } else {
-  loadNativePlaylist();
+  loadNativePlaylist().catch(() => {
+    emptyState.hidden = false;
+    nativePlayer.hidden = true;
+  });
 }

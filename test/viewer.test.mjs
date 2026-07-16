@@ -20,8 +20,8 @@ test("uses local fixture videos for native playback demos", () => {
   const items = JSON.parse(demoPlaylist).items;
 
   assert.equal(items.length, 2);
-  assert.equal(items[0].sources[0].src, "./fixtures/demo-01.mp4");
-  assert.equal(items[1].sources[0].src, "./fixtures/demo-02.mp4");
+  assert.equal(items[0].sources[0].src, "./demo-01.mp4");
+  assert.equal(items[1].sources[0].src, "./demo-02.mp4");
 });
 
 test("keeps the app shell local and free of third-party scripts", () => {
@@ -46,9 +46,17 @@ test("keeps explicit iframe source mode restrained", () => {
 });
 
 test("limits source overrides to http and https URLs", () => {
+  assert.match(js, /const toHttpUrl = \(value, base = window\.location\.href\)/);
+  assert.match(js, /const parsed = new URL\(value, base\)/);
   assert.match(js, /parsed\.protocol === "http:" \|\| parsed\.protocol === "https:"/);
   assert.match(js, /return DEFAULT_PLAYLIST;/);
   assert.match(js, /new URL\(playlistUrl\)\.origin === window\.location\.origin/);
+});
+
+test("resolves native media paths relative to the playlist manifest", () => {
+  assert.match(js, /const playlistUrl = getPlaylistUrl\(\)/);
+  assert.match(js, /normalizeItem\(item, index, playlistUrl\)/);
+  assert.match(js, /src: toHttpUrl\(source\?\.src, baseUrl\)/);
 });
 
 test("keeps visible app chrome intentionally minimal", () => {
