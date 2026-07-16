@@ -22,25 +22,29 @@
           preload="metadata"
         ></video>
         <div id="empty-state" class="empty-state" hidden>
-          <form id="source-import" class="source-import">
-            <label for="source-input">add sources</label>
-            <textarea
-              id="source-input"
-              rows="5"
-              spellcheck="false"
-              placeholder="https://example.com/video.mp4"
-            ></textarea>
-            <div class="source-import-actions">
-              <button type="submit">save</button>
-              <button id="clear-sources" type="button" hidden>clear</button>
-            </div>
-            <p id="source-import-status" class="source-import-status" role="status">
-              Paste direct MP4/WebM/HLS URLs you have the right to play.
-            </p>
-          </form>
+          <span>add sources</span>
         </div>
         <div id="playlist" class="playlist" aria-label="Playlist"></div>
       </section>
+
+      <div id="source-panel" class="source-panel" hidden>
+        <form id="source-import" class="source-import">
+          <label for="source-input">sources</label>
+          <textarea
+            id="source-input"
+            rows="5"
+            spellcheck="false"
+            placeholder="https://example.com/video.mp4"
+          ></textarea>
+          <div class="source-import-actions">
+            <button type="submit">save</button>
+            <button id="clear-sources" type="button" hidden>clear</button>
+          </div>
+          <p id="source-import-status" class="source-import-status" role="status">
+            Paste direct MP4/WebM/HLS URLs you have the right to play.
+          </p>
+        </form>
+      </div>
 
       <iframe
         id="viewer-frame"
@@ -69,6 +73,9 @@
         <a id="open-source" target="_blank" rel="noreferrer" aria-label="Open source">
           open
         </a>
+        <button id="manage-sources" type="button" aria-label="Manage sources">
+          sources
+        </button>
         <button id="fullscreen" type="button" aria-label="Enter fullscreen">
           full
         </button>

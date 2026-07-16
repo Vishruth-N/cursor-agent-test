@@ -17,13 +17,17 @@ test("loads a native playlist manifest by default", () => {
 });
 
 test("offers a local import flow for direct native media URLs", () => {
+  assert.match(html, /<div id="source-panel" class="source-panel" hidden>/);
   assert.match(html, /<form id="source-import" class="source-import">/);
   assert.match(html, /<textarea[\s\S]+id="source-input"[\s\S]+placeholder="https:\/\/example\.com\/video\.mp4"/);
   assert.match(html, /Paste direct MP4\/WebM\/HLS URLs you have the right to play\./);
+  assert.match(html, /<button id="manage-sources" type="button" aria-label="Manage sources">/);
   assert.match(js, /LOCAL_PLAYLIST_KEY = "focus-video-viewer:playlist"/);
+  assert.match(js, /setSourcePanelVisible/);
   assert.match(js, /parseImportedItems/);
   assert.match(js, /localStorage\.setItem\(LOCAL_PLAYLIST_KEY/);
   assert.match(js, /sourceImport\.addEventListener\("submit"/);
+  assert.match(js, /manageSources\.addEventListener\("click"/);
 });
 
 test("uses local fixture videos for native playback demos", () => {
@@ -71,9 +75,9 @@ test("resolves native media paths relative to the playlist manifest", () => {
 });
 
 test("keeps visible app chrome intentionally minimal", () => {
-  const visibleControlLabels = html.match(/>\s*(reload|open|full)\s*</g) ?? [];
+  const visibleControlLabels = html.match(/>\s*(reload|open|sources|full)\s*</g) ?? [];
 
-  assert.equal(visibleControlLabels.length, 4);
+  assert.equal(visibleControlLabels.length, 6);
   assert.match(html, /<div class="control-zone" aria-hidden="true"><\/div>/);
   assert.match(css, /\.control-zone:hover \+ \.controls/);
   assert.match(css, /\.shell\.controls-visible \.controls/);

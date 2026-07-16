@@ -78,6 +78,23 @@ body {
   text-align: center;
 }
 
+.source-panel {
+  background: rgba(0, 0, 0, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.36);
+  left: 50%;
+  padding: 1rem;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.source-panel[hidden] {
+  display: none;
+}
+
 .source-import label {
   letter-spacing: 0.08em;
   text-transform: lowercase;

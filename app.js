@@ -4,6 +4,7 @@ const frame = document.querySelector("#viewer-frame");
 const nativeView = document.querySelector("#native-view");
 const nativePlayer = document.querySelector("#native-player");
 const emptyState = document.querySelector("#empty-state");
+const sourcePanel = document.querySelector("#source-panel");
 const sourceImport = document.querySelector("#source-import");
 const sourceInput = document.querySelector("#source-input");
 const sourceImportStatus = document.querySelector("#source-import-status");
@@ -11,6 +12,7 @@ const clearSources = document.querySelector("#clear-sources");
 const playlist = document.querySelector("#playlist");
 const reload = document.querySelector("#reload");
 const fullscreen = document.querySelector("#fullscreen");
+const manageSources = document.querySelector("#manage-sources");
 const openSource = document.querySelector("#open-source");
 const fallback = document.querySelector("#source-fallback");
 const fallbackOpen = document.querySelector("#fallback-open");
@@ -126,6 +128,11 @@ const syncImportForm = () => {
   setImportStatus("Paste direct MP4/WebM/HLS URLs you have the right to play.");
 };
 
+const setSourcePanelVisible = (visible) => {
+  sourcePanel.hidden = !visible;
+  document.body.classList.toggle("source-panel-visible", visible);
+};
+
 const parseImportedItems = (value) => {
   const seen = new Set();
 
@@ -171,6 +178,12 @@ const showControls = () => {
 
 controlZone.addEventListener("pointerdown", showControls);
 controlZone.addEventListener("pointermove", showControls);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    setSourcePanelVisible(false);
+  }
+});
 
 reload.addEventListener("click", () => {
   if (frame.hidden) {
@@ -286,6 +299,12 @@ clearSources.addEventListener("click", async () => {
   clearSources.blur();
 });
 
+manageSources.addEventListener("click", () => {
+  syncImportForm();
+  setSourcePanelVisible(sourcePanel.hidden);
+  manageSources.blur();
+});
+
 const loadNativePlaylist = async () => {
   document.body.classList.add("native-mode");
   document.body.classList.remove("embed-mode");
@@ -309,12 +328,14 @@ const loadNativePlaylist = async () => {
     renderPlaylist();
     syncImportForm();
     emptyState.hidden = false;
+    setSourcePanelVisible(true);
     nativePlayer.hidden = true;
     setLinks();
     return;
   }
 
   emptyState.hidden = true;
+  setSourcePanelVisible(false);
   nativePlayer.hidden = false;
   syncImportForm();
   renderPlaylist();
