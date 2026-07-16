@@ -2,17 +2,26 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const [html, js, css, playlist] = await Promise.all([
+const [html, js, css, playlist, demoPlaylist] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../app.js", import.meta.url), "utf8"),
   readFile(new URL("../styles.css", import.meta.url), "utf8"),
   readFile(new URL("../playlist.json", import.meta.url), "utf8"),
+  readFile(new URL("../fixtures/demo-playlist.json", import.meta.url), "utf8"),
 ]);
 
 test("loads a native playlist manifest by default", () => {
   assert.match(js, /DEFAULT_PLAYLIST = "\.\/playlist\.json"/);
   assert.match(js, /loadNativePlaylist\(\)/);
   assert.deepEqual(JSON.parse(playlist), { items: [] });
+});
+
+test("uses local fixture videos for native playback demos", () => {
+  const items = JSON.parse(demoPlaylist).items;
+
+  assert.equal(items.length, 2);
+  assert.equal(items[0].sources[0].src, "./fixtures/demo-01.mp4");
+  assert.equal(items[1].sources[0].src, "./fixtures/demo-02.mp4");
 });
 
 test("keeps the app shell local and free of third-party scripts", () => {

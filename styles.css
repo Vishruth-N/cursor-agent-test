@@ -76,10 +76,10 @@ body {
   flex-direction: column;
   gap: 0.45rem;
   position: fixed;
-  right: max(0.8rem, env(safe-area-inset-right));
+  right: max(1rem, env(safe-area-inset-right));
   top: 50%;
   transform: translateY(-50%);
-  z-index: 2;
+  z-index: 4;
 }
 
 .playlist:empty {
@@ -87,8 +87,9 @@ body {
 }
 
 .playlist-item {
+  background: rgba(14, 14, 14, 0.84);
   min-width: 2.4rem;
-  opacity: 0.56;
+  opacity: 0.72;
   padding-inline: 0.6rem;
 }
 
