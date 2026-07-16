@@ -32,16 +32,73 @@ body {
   position: relative;
 }
 
-#viewer-frame {
+.native-view,
+.embed-frame {
+  inset: 0;
+  position: fixed;
+}
+
+.native-player,
+.embed-frame {
   background: #000;
   border: 0;
   height: 100vh;
-  inset: 0;
-  position: fixed;
   width: 100vw;
 }
 
-body.fallback-visible #viewer-frame {
+.native-player {
+  object-fit: contain;
+}
+
+.native-player[hidden],
+.embed-frame[hidden],
+.native-view[hidden] {
+  display: none;
+}
+
+.empty-state {
+  color: rgba(255, 255, 255, 0.55);
+  display: grid;
+  font-size: 0.75rem;
+  inset: 0;
+  letter-spacing: 0.08em;
+  place-items: center;
+  position: fixed;
+  text-transform: lowercase;
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+.playlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  position: fixed;
+  right: max(0.8rem, env(safe-area-inset-right));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.playlist:empty {
+  display: none;
+}
+
+.playlist-item {
+  min-width: 2.4rem;
+  opacity: 0.56;
+  padding-inline: 0.6rem;
+}
+
+.playlist-item.is-active,
+.playlist-item:hover,
+.playlist-item:focus-visible {
+  opacity: 1;
+}
+
+body.fallback-visible .embed-frame {
   opacity: 0;
   pointer-events: none;
 }

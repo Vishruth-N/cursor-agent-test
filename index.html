@@ -13,11 +13,27 @@
   </head>
   <body>
     <main class="shell" aria-label="Minimal video viewer">
+      <section id="native-view" class="native-view" aria-label="Native playlist player">
+        <video
+          id="native-player"
+          class="native-player"
+          controls
+          playsinline
+          preload="metadata"
+        ></video>
+        <div id="empty-state" class="empty-state" hidden>
+          <span>add sources</span>
+        </div>
+        <div id="playlist" class="playlist" aria-label="Playlist"></div>
+      </section>
+
       <iframe
         id="viewer-frame"
+        class="embed-frame"
         title="Video playlist"
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowfullscreen
+        hidden
         loading="eager"
         referrerpolicy="no-referrer"
         sandbox="allow-forms allow-presentation allow-same-origin allow-scripts"

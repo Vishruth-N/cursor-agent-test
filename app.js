@@ -1,6 +1,10 @@
-const DEFAULT_SOURCE = "https://pl.pornhub.com/playlist/152025041";
+const DEFAULT_PLAYLIST = "./playlist.json";
 
 const frame = document.querySelector("#viewer-frame");
+const nativeView = document.querySelector("#native-view");
+const nativePlayer = document.querySelector("#native-player");
+const emptyState = document.querySelector("#empty-state");
+const playlist = document.querySelector("#playlist");
 const reload = document.querySelector("#reload");
 const fullscreen = document.querySelector("#fullscreen");
 const openSource = document.querySelector("#open-source");
@@ -10,31 +14,50 @@ const shell = document.querySelector(".shell");
 const controlZone = document.querySelector(".control-zone");
 const EMBED_FALLBACK_DELAY = 2500;
 
-const getSource = () => {
-  const requestedSource = new URLSearchParams(window.location.search).get("source");
+const params = new URLSearchParams(window.location.search);
+let activeSource = "";
+let activeIndex = 0;
+let activeItems = [];
 
-  if (!requestedSource) {
-    return DEFAULT_SOURCE;
-  }
-
+const toHttpUrl = (value) => {
   try {
-    const parsed = new URL(requestedSource);
+    const parsed = new URL(value, window.location.href);
 
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
       return parsed.toString();
     }
   } catch {
-    // Fall through to the default source for malformed overrides.
+    return "";
   }
 
-  return DEFAULT_SOURCE;
+  return "";
 };
 
-const source = getSource();
+const getPlaylistUrl = () => {
+  const requestedPlaylist = params.get("playlist");
+
+  if (!requestedPlaylist) {
+    return DEFAULT_PLAYLIST;
+  }
+
+  const playlistUrl = toHttpUrl(requestedPlaylist);
+
+  if (playlistUrl && new URL(playlistUrl).origin === window.location.origin) {
+    return playlistUrl;
+  }
+
+  return DEFAULT_PLAYLIST;
+};
 
 const setLinks = () => {
-  openSource.href = source;
-  fallbackOpen.href = source;
+  if (!activeSource) {
+    openSource.removeAttribute("href");
+    fallbackOpen.removeAttribute("href");
+    return;
+  }
+
+  openSource.href = activeSource;
+  fallbackOpen.href = activeSource;
 };
 
 const showFallback = () => {
@@ -52,26 +75,22 @@ const showControls = () => {
   }, 2600);
 };
 
-setLinks();
-frame.src = source;
-
-frame.addEventListener("error", showFallback);
-
-if (new URL(source).origin !== window.location.origin) {
-  setTimeout(showFallback, EMBED_FALLBACK_DELAY);
-}
-
 controlZone.addEventListener("pointerdown", showControls);
 controlZone.addEventListener("pointermove", showControls);
 
 reload.addEventListener("click", () => {
-  fallback.hidden = true;
-  document.body.classList.remove("fallback-visible");
-  frame.src = source;
-  reload.blur();
-  if (new URL(source).origin !== window.location.origin) {
-    setTimeout(showFallback, EMBED_FALLBACK_DELAY);
+  if (frame.hidden) {
+    nativePlayer.load();
+  } else {
+    fallback.hidden = true;
+    document.body.classList.remove("fallback-visible");
+    frame.src = activeSource;
+    if (new URL(activeSource).origin !== window.location.origin) {
+      setTimeout(showFallback, EMBED_FALLBACK_DELAY);
+    }
   }
+
+  reload.blur();
 });
 
 fullscreen.addEventListener("click", async () => {
@@ -84,3 +103,103 @@ fullscreen.addEventListener("click", async () => {
   await document.documentElement.requestFullscreen();
   fullscreen.blur();
 });
+
+const normalizeItem = (item, index) => {
+  const sources = Array.isArray(item?.sources)
+    ? item.sources
+        .map((source) => ({
+          src: toHttpUrl(source?.src),
+          type: source?.type || "",
+        }))
+        .filter((source) => source.src)
+    : [];
+
+  return {
+    title: item?.title || String(index + 1).padStart(2, "0"),
+    poster: item?.poster ? toHttpUrl(item.poster) : "",
+    sources,
+  };
+};
+
+const loadItem = (index) => {
+  const item = activeItems[index];
+
+  if (!item) {
+    return;
+  }
+
+  activeIndex = index;
+  activeSource = item.sources[0]?.src || "";
+  nativePlayer.replaceChildren(
+    ...item.sources.map((source) => {
+      const sourceEl = document.createElement("source");
+      sourceEl.src = source.src;
+
+      if (source.type) {
+        sourceEl.type = source.type;
+      }
+
+      return sourceEl;
+    }),
+  );
+  nativePlayer.poster = item.poster;
+  nativePlayer.load();
+  setLinks();
+
+  playlist.querySelectorAll("button").forEach((button, buttonIndex) => {
+    button.classList.toggle("is-active", buttonIndex === activeIndex);
+  });
+};
+
+const renderPlaylist = () => {
+  playlist.replaceChildren(
+    ...activeItems.map((item, index) => {
+      const button = document.createElement("button");
+      button.className = "playlist-item";
+      button.type = "button";
+      button.textContent = String(index + 1).padStart(2, "0");
+      button.setAttribute("aria-label", item.title);
+      button.addEventListener("click", () => loadItem(index));
+      return button;
+    }),
+  );
+};
+
+const loadNativePlaylist = async () => {
+  const response = await fetch(getPlaylistUrl(), { cache: "no-store" });
+  const manifest = response.ok ? await response.json() : { items: [] };
+  activeItems = (manifest.items || []).map(normalizeItem).filter((item) => item.sources.length);
+
+  if (!activeItems.length) {
+    emptyState.hidden = false;
+    nativePlayer.hidden = true;
+    setLinks();
+    return;
+  }
+
+  emptyState.hidden = true;
+  nativePlayer.hidden = false;
+  renderPlaylist();
+  loadItem(0);
+};
+
+const loadEmbedSource = (source) => {
+  activeSource = source;
+  nativeView.hidden = true;
+  frame.hidden = false;
+  setLinks();
+  frame.src = source;
+  frame.addEventListener("error", showFallback);
+
+  if (new URL(source).origin !== window.location.origin) {
+    setTimeout(showFallback, EMBED_FALLBACK_DELAY);
+  }
+};
+
+const requestedSource = toHttpUrl(params.get("source") || "");
+
+if (requestedSource) {
+  loadEmbedSource(requestedSource);
+} else {
+  loadNativePlaylist();
+}

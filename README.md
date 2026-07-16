@@ -1,6 +1,6 @@
 # Focus Video Viewer
 
-A super minimal, fullscreen web-view for a single playlist source.
+A super minimal native playlist player for direct video sources.
 
 ## Run
 
@@ -10,20 +10,33 @@ npm start
 
 Open `http://127.0.0.1:4173`.
 
-The default source is:
+Add videos you have the right to play in `playlist.json`:
 
-```text
-https://pl.pornhub.com/playlist/152025041
+```json
+{
+  "items": [
+    {
+      "title": "Example",
+      "sources": [
+        {
+          "src": "https://example.com/video.mp4",
+          "type": "video/mp4"
+        }
+      ]
+    }
+  ]
+}
 ```
 
-For local testing or a different official source:
+For local testing:
 
 ```text
-http://127.0.0.1:4173/?source=https://example.com
+http://127.0.0.1:4173/?playlist=fixtures/demo-playlist.json
 ```
 
 ## Notes
 
 - The app shell has no ads, trackers, analytics, or external scripts.
-- Source providers can still enforce their own ads, embedding rules, DRM, cookies, region checks, or age gates.
-- If a provider blocks iframe playback, use the small `open` control to launch the official source directly.
+- Native playback requires direct MP4/WebM/HLS sources that you have the right to use.
+- The app does not scrape websites, extract protected streams, bypass ads, bypass DRM, or bypass access controls.
+- Explicit `?source=https://example.com` iframe mode is still available for official embeds and shows an `open` fallback when blocked.

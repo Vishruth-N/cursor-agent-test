@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "title": "Flower",
+      "sources": [
+        {
+          "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+          "type": "video/mp4"
+        }
+      ]
+    },
+    {
+      "title": "Flower alternate",
+      "sources": [
+        {
+          "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          "type": "video/webm"
+        }
+      ]
+    }
+  ]
+}

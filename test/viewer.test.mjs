@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const [html, js, css] = await Promise.all([
+const [html, js, css, playlist] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../app.js", import.meta.url), "utf8"),
   readFile(new URL("../styles.css", import.meta.url), "utf8"),
+  readFile(new URL("../playlist.json", import.meta.url), "utf8"),
 ]);
 
-test("loads the requested playlist by default", () => {
-  assert.match(js, /DEFAULT_SOURCE = "https:\/\/pl\.pornhub\.com\/playlist\/152025041"/);
+test("loads a native playlist manifest by default", () => {
+  assert.match(js, /DEFAULT_PLAYLIST = "\.\/playlist\.json"/);
+  assert.match(js, /loadNativePlaylist\(\)/);
+  assert.deepEqual(JSON.parse(playlist), { items: [] });
 });
 
 test("keeps the app shell local and free of third-party scripts", () => {
@@ -17,7 +20,14 @@ test("keeps the app shell local and free of third-party scripts", () => {
   assert.match(html, /<script type="module" src="\.\/app\.js"><\/script>/);
 });
 
-test("frames source content with a restrained embed policy", () => {
+test("renders a native player and keeps iframe mode explicit", () => {
+  assert.match(html, /<video[\s\S]+id="native-player"[\s\S]+playsinline/);
+  assert.match(html, /<div id="playlist" class="playlist"/);
+  assert.match(js, /const requestedSource = toHttpUrl\(params\.get\("source"\) \|\| ""\)/);
+  assert.match(js, /if \(requestedSource\) \{\n  loadEmbedSource\(requestedSource\);/);
+});
+
+test("keeps explicit iframe source mode restrained", () => {
   assert.match(html, /referrerpolicy="no-referrer"/);
   assert.match(
     html,
@@ -28,7 +38,8 @@ test("frames source content with a restrained embed policy", () => {
 
 test("limits source overrides to http and https URLs", () => {
   assert.match(js, /parsed\.protocol === "http:" \|\| parsed\.protocol === "https:"/);
-  assert.match(js, /return DEFAULT_SOURCE;/);
+  assert.match(js, /return DEFAULT_PLAYLIST;/);
+  assert.match(js, /new URL\(playlistUrl\)\.origin === window\.location\.origin/);
 });
 
 test("keeps visible app chrome intentionally minimal", () => {
@@ -48,6 +59,6 @@ test("shows a black official-source fallback for blocked remote embeds", () => {
   assert.match(js, /EMBED_FALLBACK_DELAY = 2500/);
   assert.match(js, /new URL\(source\)\.origin !== window\.location\.origin/);
   assert.match(js, /setTimeout\(showFallback, EMBED_FALLBACK_DELAY\)/);
-  assert.match(css, /body\.fallback-visible #viewer-frame/);
+  assert.match(css, /body\.fallback-visible \.embed-frame/);
   assert.match(css, /\.fallback \{\n  background: #000;/);
 });
