@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Safe Source</title>
+    <style>
+      :root {
+        background: #000;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        align-items: center;
+        background:
+          radial-gradient(circle at 50% 46%, rgba(82, 210, 255, 0.18), transparent 8rem),
+          linear-gradient(135deg, #020202, #121212 48%, #030303);
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .panel {
+        aspect-ratio: 16 / 9;
+        background:
+          linear-gradient(90deg, rgba(82, 210, 255, 0.55) 0 0.65rem, transparent 0.65rem),
+          radial-gradient(circle at 50% 50%, rgba(82, 210, 255, 0.2), transparent 18%),
+          linear-gradient(145deg, #10202a, #050709);
+        border-radius: 1.5rem;
+        display: grid;
+        outline: 1px solid rgba(82, 210, 255, 0.24);
+        outline-offset: -1px;
+        place-items: center;
+        box-shadow: 0 2rem 6rem rgba(82, 210, 255, 0.12);
+        width: min(80vw, 68rem);
+      }
+
+      .panel::after {
+        color: rgba(255, 255, 255, 0.72);
+        content: "safe source";
+        font: 600 0.78rem/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel" aria-label="Safe static test source"></div>
+  </body>
+</html>

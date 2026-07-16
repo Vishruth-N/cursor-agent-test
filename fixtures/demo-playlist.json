@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "title": "Demo 01",
+      "sources": [
+        {
+          "src": "./demo-01.mp4",
+          "type": "video/mp4"
+        }
+      ]
+    },
+    {
+      "title": "Demo 02",
+      "sources": [
+        {
+          "src": "./demo-02.mp4",
+          "type": "video/mp4"
+        }
+      ]
+    }
+  ]
+}
